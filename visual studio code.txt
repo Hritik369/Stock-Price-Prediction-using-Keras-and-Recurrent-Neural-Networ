@@ -1,0 +1,74 @@
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
+
+namespace MyFirstCognitiveApp
+{
+internal class Program
+{
+private const string key = "f21b9c41374e420f90772084ae6f7d1c";
+static void Main(string[] args)
+{
+Task<string> result = DescribeImage(@"F:\Test1.jpg");
+Console.WriteLine(result.Result);
+Console.ReadLine();
+}
+public static async Task<string> DescribeImage(string imageFilePath)
+{
+using (HttpClient myHttpClient = new HttpClient())
+{
+//myHttpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key",
+ConfigurationManager.AppSettings
+//["AzureSubscriptionKeyVision"]);
+myHttpClient.DefaultRequestHeaders.Add("Ocp-Apim-subscription-key", key);
+using (MultipartFormDataContent reqContent = new
+MultipartFormDataContent())
+{
+
+var queryString = HttpUtility.ParseQueryString
+
+(string.Empty);
+queryString["maxCandidates"] = "1";
+//var uri = "https://westcentralus.api.cognitive.com / vision / v3.0
+/ describe /? " + queryString;
+
+38 EDKITS ELECTRONICS
+var uri = "https://vishwjeet.cognitiveservices.azure.com/vision/v3.2/describe/? " +
+queryString;
+try
+{
+var imgContent = new ByteArrayContent(System.
+IO.File.ReadAllBytes(imageFilePath));
+reqContent.Add(imgContent);
+
+HttpResponseMessage respMessage = await
+myHttpClient.PostAsync(uri, reqContent);
+string finalJson = await respMessage.Content.
+
+ReadAsStringAsync();
+return finalJson;
+
+}
+
+catch (System.IO.FileNotFoundException ex)
+{
+
+return "The specified image file path is invalid.";
+}
+
+catch (ArgumentException ex)
+{
+
+return "The HTTP request object does not seem to be correctly
+formed.";
+}
+}
+}
+}
+}
+}
